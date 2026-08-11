@@ -13,13 +13,13 @@
     <div class="app">
         <div class="search">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--text-faint)"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-            <input type="text" placeholder="Search city" value="Lagos, Nigeria">
-            <button class="icon-btn" aria-label="Refresh">
+            <input id="searchInput" placeholder="Search city" value="Lagos, Nigeria">
+            <button id="searchBtn" class="icon-btn" aria-label="Refresh">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
             </button>
         </div>
         <div class="hero">
-            <div class="location">Lagos &middot; Wed, Aug 8</div>
+            <div class="location"><span id="location">Lagos</span> &middot;  <span id="date">Wed, Aug 8</span></div>
 
             <svg class="condition-icon" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M7 15a4 4 0 0 1 .5-7.9A5.5 5.5 0 0 1 18 9.5a3.5 3.5 0 0 1-1 6.9H7z"/>
@@ -28,23 +28,23 @@
             <line x1="17" y1="19" x2="17" y2="21"/>
             </svg>
 
-            <div class="temp-now">27<sup>&deg;</sup></div>
+            <div class="temp-now"><span id="temp">27</span><sup>&deg;</sup></div>
             <div class="condition-label">Light rain</div>
-            <div class="condition-sub">FEELS LIKE 30&deg; &middot; H:30&deg; L:24&deg;</div>
+            <div class="condition-sub">FEELS LIKE <span id="feelsLike">30</span>&deg; &middot; H:<span id="high">30</span>&deg; L:<span id="low">24</span>&deg;</div>
         </div>
 
         <div class="stats">
             <div class="stat">
             <div class="stat-label">Humidity</div>
-            <div class="stat-value">84%</div>
+            <div class="stat-value"><span id="humidity">84</span>%</div>
             </div>
             <div class="stat">
             <div class="stat-label">Wind</div>
-            <div class="stat-value">14 km/h</div>
+            <div class="stat-value"><span id="wind">14</span> km/h</div>
             </div>
             <div class="stat">
             <div class="stat-label">Rain</div>
-            <div class="stat-value">70%</div>
+            <div class="stat-value"><span id="rain">70</span>%</div>
             </div>
         </div>
 
