@@ -13,6 +13,7 @@ const low = document.getElementById('low');
 const hourlyForecastEl = document.getElementById('hourlyForecast');
 let loader = document.getElementById('loader');
 let errorEl = document.getElementById('error');
+let isLoading = false;
 
 const hourTimeEls = [
     document.getElementById('hour-time0'),
@@ -207,16 +208,15 @@ async function searchCity() {
         loader.style.display = 'none';
         return;
     }
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}`;
 
+    const response = await fetch(url);
+    const data = await response.json();
     try {
-        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}`;
-
-        const response = await fetch(url);
-        const data = await response.json();
         console.log('API response:', data);
-
         if (!data.results || data.results.length === 0) {
             alert('City not found. Please check the spelling.');
+            loader.style.display = 'none';
             return;
         }
         const latitude = data.results[0].latitude;
@@ -225,81 +225,90 @@ async function searchCity() {
         locationEl.textContent = data.results[0].name;
         dateEl.textContent = new Date().toLocaleDateString();
 
-        loader.style.display = 'none';
         getWeatherData(latitude, longitude);
-
-
     } catch (error) {
         console.error('Search error:', error);
-        errorEl.textContent = 'Error fetching weather data' + error.message;
+        errorEl.textContent = "Error searching for city: " + error.message;
     }
 }
 searchBtn.addEventListener('click', searchCity);
 
 // Fetch weather data from Open-Meteo API
 async function getWeatherData(latitude, longitude) {
+    if(isLoading){
+        return;
+    }
+    isLoading = true;
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=auto&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,precipitation_probability,rain&hourly=temperature_2m,precipitation_probability,weather_code&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_sum,weather_code&forecast_days=7`;
 
     const weatherResponse = await fetch(weatherUrl);
     const weatherData = await weatherResponse.json();
-    loader.style.display = 'none';
-    console.log(weatherData.daily);
-    console.log(weatherData.daily.weather_code);
-    console.log(weatherData.daily.temperature_2m_max);
-    console.log(weatherData.daily.temperature_2m_min);
 
-    // Current weather
-    tempEl.textContent = Math.round(weatherData.current.temperature_2m);
-    humidityEl.textContent = weatherData.current.relative_humidity_2m;
-    windEl.textContent = weatherData.current.wind_speed_10m;
-    rainEl.textContent = weatherData.current.precipitation_probability;
-    high.textContent = Math.round(weatherData.daily.temperature_2m_max[0]);
-    low.textContent = Math.round(weatherData.daily.temperature_2m_min[0]);
-    feelsLike.textContent = Math.round(weatherData.current.apparent_temperature);
+    try {
+        loader.style.display = 'none';
+        console.log(weatherData.daily);
+        console.log(weatherData.daily.weather_code);
+        console.log(weatherData.daily.temperature_2m_max);
+        console.log(weatherData.daily.temperature_2m_min);
 
-    // Hourly forecast
-    const currentHourIndex = weatherData.hourly.time.findIndex(time => {
-        return new Date(time).getHours() === new Date().getHours();
-    });
+        // Current weather
+        tempEl.textContent = Math.round(weatherData.current.temperature_2m);
+        humidityEl.textContent = weatherData.current.relative_humidity_2m;
+        windEl.textContent = weatherData.current.wind_speed_10m;
+        rainEl.textContent = weatherData.current.precipitation_probability;
+        high.textContent = Math.round(weatherData.daily.temperature_2m_max[0]);
+        low.textContent = Math.round(weatherData.daily.temperature_2m_min[0]);
+        feelsLike.textContent = Math.round(weatherData.current.apparent_temperature);
 
-    for (let i = 0; i < 6; i++) {
-        const apiIndex = currentHourIndex + i;
-
-        const time = weatherData.hourly.time[apiIndex];
-        const temperature = weatherData.hourly.temperature_2m[apiIndex];
-        const weatherCode = weatherData.hourly.weather_code[apiIndex];
-
-        const condition = getWeatherCondition(weatherCode);
-        const icon = getWeatherIcon(weatherCode);
-        hourIconEls[i].textContent = icon;
-        conditionLabelEl.textContent = condition;
-
-        console.log(condition);
-
-        hourTimeEls[i].textContent =
-            i === 0
-                ? 'Now'
-                : new Date(time).toLocaleTimeString([], {
-                    hour: 'numeric'
-                });
-
-        hourTempEls[i].textContent = Math.round(temperature);
-    }
-    for (let i = 0; i < 7; i++) {
-        const date = weatherData.daily.time[i];
-        const high = weatherData.daily.temperature_2m_max[i];
-        const low = weatherData.daily.temperature_2m_min[i];
-        const weatherCode = weatherData.daily.weather_code[i];
-        const icon = getWeatherIcon(weatherCode);
-
-        dayNameEls[i].textContent = new Date(date).toLocaleDateString([], {
-            weekday: 'short'
+        // Hourly forecast
+        const currentHourIndex = weatherData.hourly.time.findIndex(time => {
+            return new Date(time).getHours() === new Date().getHours();
         });
 
-        dayHighEls[i].textContent = Math.round(high) + '°';
-        dayLowEls[i].textContent = Math.round(low) + '°';
-        dayIconEls[i].textContent = icon;
-    }
+        for (let i = 0; i < 6; i++) {
+            const apiIndex = currentHourIndex + i;
+
+            const time = weatherData.hourly.time[apiIndex];
+            const temperature = weatherData.hourly.temperature_2m[apiIndex];
+            const weatherCode = weatherData.hourly.weather_code[apiIndex];
+
+            const condition = getWeatherCondition(weatherCode);
+            const icon = getWeatherIcon(weatherCode);
+            hourIconEls[i].textContent = icon;
+            conditionLabelEl.textContent = condition;
+
+            console.log(condition);
+
+            hourTimeEls[i].textContent =
+                i === 0
+                    ? 'Now'
+                    : new Date(time).toLocaleTimeString([], {
+                        hour: 'numeric'
+                    });
+
+            hourTempEls[i].textContent = Math.round(temperature);
+        }
+        for (let i = 0; i < 7; i++) {
+            const date = weatherData.daily.time[i];
+            const high = weatherData.daily.temperature_2m_max[i];
+            const low = weatherData.daily.temperature_2m_min[i];
+            const weatherCode = weatherData.daily.weather_code[i];
+            const icon = getWeatherIcon(weatherCode);
+
+            dayNameEls[i].textContent = new Date(date).toLocaleDateString([], {
+                weekday: 'short'
+            });
+
+            dayHighEls[i].textContent = Math.round(high) + '°';
+            dayLowEls[i].textContent = Math.round(low) + '°';
+            dayIconEls[i].textContent = icon;
+        }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            isLoading = false;
+        }
+    
 }
 
 // Get location name from coordinates
@@ -309,17 +318,21 @@ async function getLocationName(latitude, longitude) {
     const response = await fetch(url);
     const data = await response.json();
 
-    console.log(data);
+    try {
+        const address = data.address;
 
-    const address = data.address;
-
-    locationEl.textContent =
-        address.city ||
-        address.town ||
-        address.village ||
-        address.municipality ||
-        'Unknown location';
+        locationEl.textContent =
+            address.city ||
+            address.town ||
+            address.village ||
+            address.municipality ||
+            'Unknown location';
         dateEl.textContent = new Date().toLocaleDateString();
+
+    } catch (error) {
+        console.error(error);
+        errorEl.textContent = "Error fetching location name: " + error.message;
+    }
 }
 
 // Get user's location and fetch weather data
@@ -335,6 +348,7 @@ function getUserLocation() {
             },
             (error) => {
                 console.error("Unable to get your location:", error);
+                errorEl.textContent = "Unable to get your location. Please allow location access or search for a city.";
             }
         );
     } else {
