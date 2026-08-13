@@ -3,6 +3,7 @@ const searchBtn = document.getElementById('searchBtn');
 const locationEl = document.getElementById('location');
 const dateEl = document.getElementById('date');
 const tempEl = document.getElementById('temp');
+const conditionLabelEl = document.getElementById('conditionLabel');
 const humidityEl = document.getElementById('humidity');
 const windEl = document.getElementById('wind');
 const rainEl = document.getElementById('rain');
@@ -10,6 +11,9 @@ const feelsLike = document.getElementById('feelsLike');
 const high = document.getElementById('high');
 const low = document.getElementById('low');
 const hourlyForecastEl = document.getElementById('hourlyForecast');
+let loader = document.getElementById('loader');
+let errorEl = document.getElementById('error');
+
 const hourTimeEls = [
     document.getElementById('hour-time0'),
     document.getElementById('hour-time1'),
@@ -41,6 +45,42 @@ const hourIconEls = [
     document.getElementById('hour-icon3'),
     document.getElementById('hour-icon4'),
     document.getElementById('hour-icon5')
+];
+const dayNameEls = [
+    document.getElementById('dayName0'),
+    document.getElementById('dayName1'),
+    document.getElementById('dayName2'),
+    document.getElementById('dayName3'),
+    document.getElementById('dayName4'),
+    document.getElementById('dayName5'),
+    document.getElementById('dayName6')
+];
+const dayLowEls = [
+    document.getElementById('dayLow0'),
+    document.getElementById('dayLow1'),
+    document.getElementById('dayLow2'),
+    document.getElementById('dayLow3'),
+    document.getElementById('dayLow4'),
+    document.getElementById('dayLow5'),
+    document.getElementById('dayLow6')
+];
+const dayHighEls = [
+    document.getElementById('dayHigh0'),
+    document.getElementById('dayHigh1'),
+    document.getElementById('dayHigh2'),
+    document.getElementById('dayHigh3'),
+    document.getElementById('dayHigh4'),
+    document.getElementById('dayHigh5'),
+    document.getElementById('dayHigh6')
+];
+const dayIconEls = [
+    document.getElementById('dayIcon0'),
+    document.getElementById('dayIcon1'),
+    document.getElementById('dayIcon2'),
+    document.getElementById('dayIcon3'),
+    document.getElementById('dayIcon4'),
+    document.getElementById('dayIcon5'),
+    document.getElementById('dayIcon6')
 ];
 
 // Function to get weather condition based on code
@@ -161,9 +201,10 @@ function getWeatherIcon(code) {
 // Search for city using Open-Meteo Geocoding API
 async function searchCity() {
     const city = searchInput.value.trim();
-
+    loader.style.display = 'block';
     if (city === '') {
         alert('Please enter a city.');
+        loader.style.display = 'none';
         return;
     }
 
@@ -172,41 +213,49 @@ async function searchCity() {
 
         const response = await fetch(url);
         const data = await response.json();
-
         console.log('API response:', data);
 
         if (!data.results || data.results.length === 0) {
             alert('City not found. Please check the spelling.');
             return;
         }
-
         const latitude = data.results[0].latitude;
         const longitude = data.results[0].longitude;
 
         locationEl.textContent = data.results[0].name;
         dateEl.textContent = new Date().toLocaleDateString();
 
+        loader.style.display = 'none';
         getWeatherData(latitude, longitude);
+
 
     } catch (error) {
         console.error('Search error:', error);
-        alert('Something went wrong. Please try again.');
+        errorEl.textContent = 'Error fetching weather data' + error.message;
     }
 }
 searchBtn.addEventListener('click', searchCity);
 
 // Fetch weather data from Open-Meteo API
 async function getWeatherData(latitude, longitude) {
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=auto&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,precipitation_probability,rain&hourly=temperature_2m,precipitation_probability,weather_code`;
+    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=auto&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,precipitation_probability,rain&hourly=temperature_2m,precipitation_probability,weather_code&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_sum,weather_code&forecast_days=7`;
 
     const weatherResponse = await fetch(weatherUrl);
     const weatherData = await weatherResponse.json();
+    loader.style.display = 'none';
+    console.log(weatherData.daily);
+    console.log(weatherData.daily.weather_code);
+    console.log(weatherData.daily.temperature_2m_max);
+    console.log(weatherData.daily.temperature_2m_min);
 
     // Current weather
-    tempEl.textContent = weatherData.current.temperature_2m;
+    tempEl.textContent = Math.round(weatherData.current.temperature_2m);
     humidityEl.textContent = weatherData.current.relative_humidity_2m;
     windEl.textContent = weatherData.current.wind_speed_10m;
     rainEl.textContent = weatherData.current.precipitation_probability;
+    high.textContent = Math.round(weatherData.daily.temperature_2m_max[0]);
+    low.textContent = Math.round(weatherData.daily.temperature_2m_min[0]);
+    feelsLike.textContent = Math.round(weatherData.current.apparent_temperature);
 
     // Hourly forecast
     const currentHourIndex = weatherData.hourly.time.findIndex(time => {
@@ -222,8 +271,8 @@ async function getWeatherData(latitude, longitude) {
 
         const condition = getWeatherCondition(weatherCode);
         const icon = getWeatherIcon(weatherCode);
-        // hourConditionEls[i].textContent = condition;
         hourIconEls[i].textContent = icon;
+        conditionLabelEl.textContent = condition;
 
         console.log(condition);
 
@@ -234,7 +283,22 @@ async function getWeatherData(latitude, longitude) {
                     hour: 'numeric'
                 });
 
-        hourTempEls[i].textContent = temperature;
+        hourTempEls[i].textContent = Math.round(temperature);
+    }
+    for (let i = 0; i < 7; i++) {
+        const date = weatherData.daily.time[i];
+        const high = weatherData.daily.temperature_2m_max[i];
+        const low = weatherData.daily.temperature_2m_min[i];
+        const weatherCode = weatherData.daily.weather_code[i];
+        const icon = getWeatherIcon(weatherCode);
+
+        dayNameEls[i].textContent = new Date(date).toLocaleDateString([], {
+            weekday: 'short'
+        });
+
+        dayHighEls[i].textContent = Math.round(high) + '°';
+        dayLowEls[i].textContent = Math.round(low) + '°';
+        dayIconEls[i].textContent = icon;
     }
 }
 
