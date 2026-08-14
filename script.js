@@ -84,6 +84,20 @@ const dayIconEls = [
     document.getElementById('dayIcon6')
 ];
 
+// SVG weather icons 
+const weatherSvgIcons = {
+    clear: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>`,
+    partlyCloudy: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3.2"/><path d="M8 3.5v1.4M3.5 9H5M11 9h1.5M4.6 5.6l1 1M11.4 5.6l-1 1"/><path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4 1.6A4 4 0 0 0 7 19h10.5z"/></svg>`,
+    mostlyCloudy: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4 1.6A4 4 0 0 0 7 19h10.5z"/></svg>`,
+    cloudy: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15a4 4 0 0 1 .5-7.9A5.5 5.5 0 0 1 18 9.5a3.5 3.5 0 0 1-1 6.9H7z"/></svg>`,
+    fog: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5h8"/><path d="M4 12h14"/><path d="M4 15.5h16"/><path d="M7 19h10"/></svg>`,
+    drizzle: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12a4 4 0 0 1 .5-7.9A5.5 5.5 0 0 1 18 6.5a3.5 3.5 0 0 1-1 6.9H7z"/><line x1="9" y1="17" x2="9" y2="19"/><line x1="13" y1="17" x2="13" y2="19.5"/><line x1="17" y1="17" x2="17" y2="19"/></svg>`,
+    rain: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12a4 4 0 0 1 .5-7.9A5.5 5.5 0 0 1 18 6.5a3.5 3.5 0 0 1-1 6.9H7z"/><line x1="8" y1="17" x2="7" y2="21"/><line x1="12" y1="17" x2="11" y2="21"/><line x1="16" y1="17" x2="15" y2="21"/></svg>`,
+    snow: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12a4 4 0 0 1 .5-7.9A5.5 5.5 0 0 1 18 6.5a3.5 3.5 0 0 1-1 6.9H7z"/><line x1="8" y1="18" x2="8" y2="21"/><line x1="6.5" y1="19.5" x2="9.5" y2="19.5"/><line x1="16" y1="18" x2="16" y2="21"/><line x1="14.5" y1="19.5" x2="17.5" y2="19.5"/></svg>`,
+    thunderstorm: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12a4 4 0 0 1 .5-7.9A5.5 5.5 0 0 1 18 6.5a3.5 3.5 0 0 1-1 6.9H7z"/><path d="M12 15l-2 4h3l-2 4"/></svg>`,
+    unknown: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.6-1.4c.6.9.4 1.7-.4 2.4-.8.7-1.7 1.1-1.7 2.5"/><line x1="12" y1="16.5" x2="12" y2="16.6"/></svg>`
+};
+
 // Function to get weather condition based on code
 function getWeatherCondition(code) {
     switch (code) {
@@ -145,59 +159,115 @@ function getWeatherCondition(code) {
 function getWeatherIcon(code) {
     switch (code) {
         case 0:
-            return "☀️";
+            return weatherSvgIcons.clear;
 
         case 1:
-            return "🌤️";
+            return weatherSvgIcons.partlyCloudy;
 
         case 2:
-            return "🌥️";
+            return weatherSvgIcons.mostlyCloudy;
 
         case 3:
-            return "☁️";
+            return weatherSvgIcons.cloudy;
 
         case 45:
         case 48:
-            return "🌫️";
+            return weatherSvgIcons.fog;
 
         case 51:
         case 53:
         case 55:
         case 56:
         case 57:
-            return "🌦️";
+            return weatherSvgIcons.drizzle;
 
         case 61:
         case 63:
         case 65:
         case 66:
         case 67:
-            return "🌧️";
+            return weatherSvgIcons.rain;
 
         case 71:
         case 73:
         case 75:
         case 77:
-            return "🌨️";
+            return weatherSvgIcons.snow;
 
         case 80:
         case 81:
         case 82:
-            return "🌧️";
+            return weatherSvgIcons.rain;
 
         case 85:
         case 86:
-            return "🌨️";
+            return weatherSvgIcons.snow;
 
         case 95:
         case 96:
         case 99:
-            return "⛈️";
+            return weatherSvgIcons.thunderstorm;
 
         default:
-            return "❓";
+            return weatherSvgIcons.unknown;
     }
 }
+// function getWeatherIcon(code) {
+//     switch (code) {
+//         case 0:
+//             return "☀️";
+
+//         case 1:
+//             return "🌤️";
+
+//         case 2:
+//             return "🌥️";
+
+//         case 3:
+//             return "☁️";
+
+//         case 45:
+//         case 48:
+//             return "🌫️";
+
+//         case 51:
+//         case 53:
+//         case 55:
+//         case 56:
+//         case 57:
+//             return "🌦️";
+
+//         case 61:
+//         case 63:
+//         case 65:
+//         case 66:
+//         case 67:
+//             return "🌧️";
+
+//         case 71:
+//         case 73:
+//         case 75:
+//         case 77:
+//             return "🌨️";
+
+//         case 80:
+//         case 81:
+//         case 82:
+//             return "🌧️";
+
+//         case 85:
+//         case 86:
+//             return "🌨️";
+
+//         case 95:
+//         case 96:
+//         case 99:
+//             return "⛈️";
+
+//         default:
+//             return "❓";
+//     }
+// }
 
 // Search for city using Open-Meteo Geocoding API
 async function searchCity() {
@@ -274,7 +344,7 @@ async function getWeatherData(latitude, longitude) {
 
             const condition = getWeatherCondition(weatherCode);
             const icon = getWeatherIcon(weatherCode);
-            hourIconEls[i].textContent = icon;
+            hourIconEls[i].innerHTML = icon;
             conditionLabelEl.textContent = condition;
 
             console.log(condition);
@@ -301,7 +371,7 @@ async function getWeatherData(latitude, longitude) {
 
             dayHighEls[i].textContent = Math.round(high) + '°';
             dayLowEls[i].textContent = Math.round(low) + '°';
-            dayIconEls[i].textContent = icon;
+            dayIconEls[i].innerHTML = icon;
         }
         } catch (error) {
             console.log(error);
